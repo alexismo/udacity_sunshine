@@ -306,7 +306,7 @@ public class ForecastFragment extends Fragment {
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
 
-                if(tempunit.equals("imperial")){
+                if(tempunit.equals(getString(R.string.pref_tempunit_imperial))){
                     high = ((high*9)/5)+32;
                     low = ((low*9)/5)+32;
                 }
