@@ -13,9 +13,14 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
 
+    private static final String Log_TAG = MainActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d(Log_TAG, "creating");
+
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -24,6 +29,37 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(Log_TAG, "starting");
+        // The activity is about to become visible.
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(Log_TAG, "resuming");
+        // The activity has become visible (it is now "resumed").
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(Log_TAG, "paused");
+        // Another activity is taking focus (this activity is about to be "paused").
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(Log_TAG, "stopped");
+        // The activity is no longer visible (it is now "stopped")
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(Log_TAG, "destroyed");
+        // The activity is about to be destroyed.
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -31,6 +67,7 @@ public class MainActivity extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-
 public class DetailActivity extends ActionBarActivity {
 
     private ShareActionProvider mShareActionProvider;
