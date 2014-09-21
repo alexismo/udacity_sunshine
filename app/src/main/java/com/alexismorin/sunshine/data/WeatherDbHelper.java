@@ -3,7 +3,6 @@ package com.alexismorin.sunshine.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.alexismorin.sunshine.data.*;
 
 /**
  * Created by alexis on 19/09/14.
@@ -51,8 +50,8 @@ public class WeatherDbHelper extends SQLiteOpenHelper{
                         WeatherContract.LocationEntry._ID + " INTEGER PRIMARY KEY," +
                         WeatherContract.LocationEntry.COLUMN_CITY_NAME + " TEXT NOT NULL, " +
                         WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " TEXT UNIQUE NOT NULL, " +
-                        WeatherContract.LocationEntry.COLUMN_COORD_LATITUDE + " REAL NOT NULL, " +
-                        WeatherContract.LocationEntry.COLUMN_COORD_LONGITUDE + " REAL NOT NULL, " +
+                        WeatherContract.LocationEntry.COLUMN_COORD_LAT + " REAL NOT NULL, " +
+                        WeatherContract.LocationEntry.COLUMN_COORD_LONG + " REAL NOT NULL, " +
                         "UNIQUE (" + WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + ") ON CONFLICT IGNORE" +
                         ");";
 

@@ -112,10 +112,10 @@ public class WeatherContract {
         public static final String COLUMN_LOCATION_SETTING = "location_setting";
 
         //longitude for the location
-        public static final String COLUMN_COORD_LONGITUDE = "coord_lon";
+        public static final String COLUMN_COORD_LONG = "coord_long";
 
         //latitude for the location
-        public static final String COLUMN_COORD_LATITUDE = "coord_lat";
+        public static final String COLUMN_COORD_LAT = "coord_lat";
 
         public static Uri buildLocationUri(long id){
             return ContentUris.withAppendedId(CONTENT_URI, id);

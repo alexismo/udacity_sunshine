@@ -1,28 +1,31 @@
 package com.alexismorin.sunshine.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 
-import java.util.WeakHashMap;
+import com.alexismorin.sunshine.data.WeatherContract.WeatherEntry;
+import com.alexismorin.sunshine.data.WeatherContract.LocationEntry;
 
 /**
  * Created by alexis on 20/09/14.
  */
-public class WeatherProvider extends ContentProvider{
+public class WeatherProvider extends ContentProvider {
+
+    // The URI Matcher used by this content provider.
+    private static final UriMatcher sUriMatcher = buildUriMatcher();
+    private WeatherDbHelper mOpenHelper;
+
     private static final int WEATHER = 100;
     private static final int WEATHER_WITH_LOCATION = 101;
     private static final int WEATHER_WITH_LOCATION_AND_DATE = 102;
     private static final int LOCATION = 300;
     private static final int LOCATION_ID = 301;
 
-    private static final UriMatcher sUriMatcher = buildUriMatcher();
-
-    private WeatherDbHelper mOpenHelper;
-
-    private static UriMatcher buildUriMatcher(){
+    private static UriMatcher buildUriMatcher() {
         // I know what you're thinking.  Why create a UriMatcher when you can use regular
         // expressions instead?  Because you're not crazy, that's why.
 
@@ -45,19 +48,17 @@ public class WeatherProvider extends ContentProvider{
 
     @Override
     public boolean onCreate() {
-
         mOpenHelper = new WeatherDbHelper(getContext());
-
         return true;
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        // Here's a switch statement that, given a URI, will determine what kind of request we're making
-        // and query the database accordingly
-
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+                        String sortOrder) {
+        // Here's the switch statement that, given a URI, will determine what kind of request it is,
+        // and query the database accordingly.
         Cursor retCursor;
-        switch (sUriMatcher.match(uri)){
+        switch (sUriMatcher.match(uri)) {
             // "weather/*/*"
             case WEATHER_WITH_LOCATION_AND_DATE:
             {
@@ -65,14 +66,12 @@ public class WeatherProvider extends ContentProvider{
                 break;
             }
             // "weather/*"
-            case WEATHER_WITH_LOCATION:
-            {
+            case WEATHER_WITH_LOCATION: {
                 retCursor = null;
                 break;
             }
             // "weather"
-            case WEATHER:
-            {
+            case WEATHER: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         WeatherContract.WeatherEntry.TABLE_NAME,
                         projection,
@@ -85,21 +84,34 @@ public class WeatherProvider extends ContentProvider{
                 break;
             }
             // "location/*"
-            case LOCATION_ID:
-            {
-                retCursor = null;
+            case LOCATION_ID: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        projection,
+                        WeatherContract.LocationEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             }
             // "location"
-            case LOCATION:
-            {
-                retCursor = null;
+            case LOCATION: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
                 break;
             }
 
             default:
-                throw new UnsupportedOperationException("Unknown uri: "+uri);
-
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
@@ -107,8 +119,11 @@ public class WeatherProvider extends ContentProvider{
 
     @Override
     public String getType(Uri uri) {
+
+        // Use the Uri Matcher to determine what kind of URI this is.
         final int match = sUriMatcher.match(uri);
-        switch (match){
+
+        switch (match) {
             case WEATHER_WITH_LOCATION_AND_DATE:
                 return WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE;
             case WEATHER_WITH_LOCATION:
@@ -120,7 +135,7 @@ public class WeatherProvider extends ContentProvider{
             case LOCATION_ID:
                 return WeatherContract.LocationEntry.CONTENT_ITEM_TYPE;
             default:
-                throw new UnsupportedOperationException("Unknown uri: "+uri);
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
     }
 
@@ -138,5 +153,4 @@ public class WeatherProvider extends ContentProvider{
     public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
         return 0;
     }
-
 }
