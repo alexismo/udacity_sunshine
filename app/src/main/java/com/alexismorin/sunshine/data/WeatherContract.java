@@ -80,7 +80,7 @@ public class WeatherContract {
             return CONTENT_URI.buildUpon().appendPath(locationSetting).appendPath(date).build();
         }
 
-        public static String getLocationFromUri(Uri uri){
+        public static String getLocationSettingFromUri(Uri uri){
             return uri.getPathSegments().get(1);
         }
 
