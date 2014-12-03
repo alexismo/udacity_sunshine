@@ -10,6 +10,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -125,11 +126,24 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         listView.setAdapter(mForecastAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                
-                Intent detailsIntent = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, "placeholder");
-                startActivity(detailsIntent);
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+                SimpleCursorAdapter adapter = (SimpleCursorAdapter) adapterView.getAdapter();
+                Cursor forecastCursor = adapter.getCursor();
+
+                if(null != forecastCursor && forecastCursor.moveToPosition(position)){
+                    boolean isMetric = Utility.isMetric(getActivity());
+
+                    String extraText = String.format("%s - %s - %s/%s",
+                            Utility.formatDate(forecastCursor.getString(COL_WEATHER_DATE)),
+                            forecastCursor.getString(COL_WEATHER_DESC),
+                            Utility.formatTemperature(forecastCursor.getFloat(COL_WEATHER_MAX_TEMP), isMetric),
+                            Utility.formatTemperature(forecastCursor.getFloat(COL_WEATHER_MIN_TEMP), isMetric));
+
+                    Intent detailsIntent = new Intent(getActivity(), DetailActivity.class)
+                            .putExtra(Intent.EXTRA_TEXT, extraText);
+                    startActivity(detailsIntent);
+                }
             }
         });
 
@@ -168,7 +182,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onStart(){
         super.onStart();
-        updateWeather();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(mLocation != null && !mLocation.equals(Utility.getPreferredLocation(getActivity()))){
+            getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+        }
     }
 
     @Override

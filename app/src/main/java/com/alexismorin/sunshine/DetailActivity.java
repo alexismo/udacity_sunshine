@@ -18,8 +18,6 @@ import android.widget.TextView;
 
 public class DetailActivity extends ActionBarActivity {
 
-    private ShareActionProvider mShareActionProvider;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
