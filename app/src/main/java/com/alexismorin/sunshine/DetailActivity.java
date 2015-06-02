@@ -1,6 +1,11 @@
 package com.alexismorin.sunshine;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
@@ -15,6 +20,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.alexismorin.sunshine.data.WeatherContract;
+
+import java.util.Date;
 
 public class DetailActivity extends ActionBarActivity {
 
@@ -54,16 +63,40 @@ public class DetailActivity extends ActionBarActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class DetailFragment extends Fragment {
+    public static class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
         private static final String LOG_TAG = DetailFragment.class.getSimpleName();
+        private static final int FORECAST_DETAIL_LOADER = 1;
 
         private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
         private String mForecastString;
+        private String mForecastDate;
+
+        private static final String[] FORECAST_COLUMNS = {
+            //In this case the id needs to be fully qualified with a table name, since
+            //the content provider joins the location & weather tables in the background
+            // (both and an _id column)
+            // On the one hand, that's annoying. On the other, you can search the weather table
+            //using the location set by the user, which is only in the location table.
+            //so the convenience is worth it
+
+            WeatherContract.WeatherEntry.TABLE_NAME + "."+ WeatherContract.WeatherEntry._ID,
+            WeatherContract.WeatherEntry.COLUMN_DATETEXT,
+            WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
+            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING
+        };
 
         public DetailFragment() {
             setHasOptionsMenu(true);
+        }
+
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState){
+            getLoaderManager().initLoader(FORECAST_DETAIL_LOADER, null, this);
+            super.onActivityCreated(savedInstanceState);
         }
 
         @Override
@@ -100,7 +133,8 @@ public class DetailActivity extends ActionBarActivity {
 
             if (intent.hasExtra(Intent.EXTRA_TEXT)) {
                 TextView forecastDetails = (TextView) rootView.findViewById(R.id.forecastDetail);
-                mForecastString = message;
+                //mForecastString = message;
+                mForecastDate = message;
                 forecastDetails.setText(mForecastString);
 
                 //create an intent to share
@@ -119,6 +153,39 @@ public class DetailActivity extends ActionBarActivity {
             shareIntent.putExtra(Intent.EXTRA_TEXT,mForecastString + FORECAST_SHARE_HASHTAG);
 
             return shareIntent;
+        }
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args){
+            //This is called when a new loader gets created. This
+            // fragment only uses one loader, so we don't care about checking the ID
+
+            //Date startDate = WeatherContract.getDateFromDb(mForecastDate);
+            String location = Utility.getPreferredLocation(getActivity());
+
+            Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(location, mForecastDate);
+
+            //now create and return a CursorLoader that will take care of
+            //creating a Cursor for the data being displayed.
+
+            return new CursorLoader(
+                    getActivity(),
+                    weatherForLocationUri,
+                    FORECAST_COLUMNS,
+                    null,
+                    null,
+                    null
+            );
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data){
+            //mForecastAdapter.swapCursor(data);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader){
+            //mForecastAdapter.swapCursor(null);
         }
     }
 }

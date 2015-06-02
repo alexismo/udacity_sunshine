@@ -132,16 +132,20 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 Cursor forecastCursor = adapter.getCursor();
 
                 if(null != forecastCursor && forecastCursor.moveToPosition(position)){
-                    boolean isMetric = Utility.isMetric(getActivity());
+                    /*boolean isMetric = Utility.isMetric(getActivity());
 
                     String extraText = String.format("%s - %s - %s/%s",
                             Utility.formatDate(forecastCursor.getString(COL_WEATHER_DATE)),
                             forecastCursor.getString(COL_WEATHER_DESC),
                             Utility.formatTemperature(forecastCursor.getFloat(COL_WEATHER_MAX_TEMP), isMetric),
                             Utility.formatTemperature(forecastCursor.getFloat(COL_WEATHER_MIN_TEMP), isMetric));
+                    */
+
+                    String date = forecastCursor.getString(COL_WEATHER_DATE);
+                    Log.v("LOG_FRAGMENT", date);
 
                     Intent detailsIntent = new Intent(getActivity(), DetailActivity.class)
-                            .putExtra(Intent.EXTRA_TEXT, extraText);
+                            .putExtra(Intent.EXTRA_TEXT, date);
                     startActivity(detailsIntent);
                 }
             }
