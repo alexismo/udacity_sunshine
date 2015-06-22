@@ -1,12 +1,10 @@
 package com.alexismorin.sunshine.data;
 
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import android.text.format.Time;
 
 /**
  * Created by alexis on 19/09/14.
@@ -26,15 +24,25 @@ public class WeatherContract {
     public static final String PATH_WEATHER = "weather";
     public static final String PATH_LOCATION = "location";
 
+    // To make it easy to query for the exact date, we normalize all dates that go into
+    // the database to the start of the the Julian day at UTC.
+    public static long normalizeDate(long startDate) {
+        // normalize the start date to the beginning of the (UTC) day
+        Time time = new Time();
+        time.set(startDate);
+        int julianDay = Time.getJulianDay(startDate, time.gmtoff);
+        return time.setJulianDay(julianDay);
+    }
+
     /* Inner class that defines the table contents of the weather table*/
     public static final class WeatherEntry implements BaseColumns{
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
 
         public static final String CONTENT_TYPE =
-                "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_WEATHER;
+                ContentResolver.CURSOR_DIR_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_WEATHER;
         public static final String CONTENT_ITEM_TYPE =
-                "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_WEATHER;
+                ContentResolver.CURSOR_ITEM_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_WEATHER;
 
         public static final String TABLE_NAME = "weather";
 
@@ -80,8 +88,18 @@ public class WeatherContract {
                     .appendQueryParameter(COLUMN_DATETEXT, startDate).build();
         }
 
+        public static Uri buildWeatherLocationWithStartDate(
+                String locationSetting, long startDate) {
+            return CONTENT_URI.buildUpon().appendPath(locationSetting).appendQueryParameter(COLUMN_DATETEXT, Long.toString(normalizeDate(startDate))).build();
+        }
+
         public static Uri buildWeatherLocationWithDate(String locationSetting, String date){
             return CONTENT_URI.buildUpon().appendPath(locationSetting).appendPath(date).build();
+        }
+
+        public static Uri buildWeatherLocationWithDate(String locationSetting, long date){
+            return CONTENT_URI.buildUpon().appendPath(locationSetting)
+                    .appendPath(Long.toString(normalizeDate(date))).build();
         }
 
         public static String getLocationSettingFromUri(Uri uri){
@@ -103,9 +121,9 @@ public class WeatherContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
 
         public static final String CONTENT_TYPE =
-                "vnd.android.cursor.dir/"+CONTENT_AUTHORITY+"/"+PATH_LOCATION;
+                ContentResolver.CURSOR_DIR_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_LOCATION;
         public static final String CONTENT_ITEM_TYPE =
-                "vnd.android.cursor.item/"+CONTENT_AUTHORITY+"/"+PATH_LOCATION;
+                ContentResolver.CURSOR_ITEM_BASE_TYPE+"/"+CONTENT_AUTHORITY+"/"+PATH_LOCATION;
 
         //Table name
         public static final String TABLE_NAME = "location";
@@ -125,32 +143,5 @@ public class WeatherContract {
         public static Uri buildLocationUri(long id){
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
-    }
-
-    public static final String DATE_FORMAT = "yyyyMMdd";
-
-    /**
-     * Converts a dateText to a long Unix time representation
-     * @param dateText the input date string
-     * @return the Date object
-     */
-    public static Date getDateFromDb(String dateText) {
-        SimpleDateFormat dbDateFormat = new SimpleDateFormat(DATE_FORMAT);
-        try {
-            return dbDateFormat.parse(dateText);
-        } catch ( ParseException e ) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Converts Date class to a string representation, used for easy comparison and database
-     * @param date the input date
-     * @return a DB-friendly representation of the date, using the format defined in DATE_FORMAT
-     */
-    public static String getDbDateString(Date date){
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-        return sdf.format(date);
     }
 }
