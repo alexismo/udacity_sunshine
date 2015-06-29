@@ -90,7 +90,8 @@ public class WeatherContract {
 
         public static Uri buildWeatherLocationWithStartDate(
                 String locationSetting, long startDate) {
-            return CONTENT_URI.buildUpon().appendPath(locationSetting).appendQueryParameter(COLUMN_DATETEXT, Long.toString(normalizeDate(startDate))).build();
+            return CONTENT_URI.buildUpon().appendPath(locationSetting)
+                    .appendQueryParameter(COLUMN_DATETEXT, Long.toString(normalizeDate(startDate))).build();
         }
 
         public static Uri buildWeatherLocationWithDate(String locationSetting, String date){
