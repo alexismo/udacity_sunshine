@@ -65,8 +65,8 @@ public class WeatherProvider extends ContentProvider {
             selection = sLocationSettingSelection;
             selectionArgs = new String[]{locationSetting};
         } else {
-            selectionArgs = new String[]{locationSetting, startDate};
             selection = sLocationSettingWithStartDateSelection;
+            selectionArgs = new String[]{locationSetting, startDate};
         }
 
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
@@ -182,6 +182,7 @@ public class WeatherProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
     }
@@ -216,6 +217,7 @@ public class WeatherProvider extends ContentProvider {
 
         switch (match) {
             case WEATHER: {
+                normalizeDate(values);
                 long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
                     returnUri = WeatherContract.WeatherEntry.buildWeatherUri(_id);
@@ -243,6 +245,8 @@ public class WeatherProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         int rowsDeleted;
+        //this makes delete all rows return the number of rows deleted
+        if (null == selection ) selection = "1";
         switch (match) {
             case WEATHER:
                 rowsDeleted = db.delete(
@@ -256,10 +260,18 @@ public class WeatherProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         // Because a null deletes all rows
-        if (selection == null || rowsDeleted != 0) {
+        if (rowsDeleted != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
         return rowsDeleted;
+    }
+
+    private void normalizeDate(ContentValues values) {
+        // normalize the date value
+        if (values.containsKey(WeatherEntry.COLUMN_DATETEXT)) {
+            long dateValue = values.getAsLong(WeatherEntry.COLUMN_DATETEXT);
+            values.put(WeatherEntry.COLUMN_DATETEXT, WeatherContract.normalizeDate(dateValue));
+        }
     }
 
     @Override
