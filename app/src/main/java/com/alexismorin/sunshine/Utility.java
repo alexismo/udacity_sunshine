@@ -38,9 +38,9 @@ public class Utility {
         return String.format("%.0f", temp);
     }
 
-    /*
-    static String formatDate(String dateString){
-        Date date = WeatherContract.getDateFromDb(dateString);
+
+    static String formatDate(long dateInMillis) {
+        Date date = new Date(dateInMillis);
         return DateFormat.getDateInstance().format(date);
-    }*/
+    }
 }
