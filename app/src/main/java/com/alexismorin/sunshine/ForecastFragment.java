@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -145,9 +146,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView adapterView, View view, int position, long l){
+            public void onItemClick(AdapterView adapterView, View view, int position, long l) {
                 //CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
@@ -155,7 +156,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 //String locationSetting = Utility.getPreferredLocation(getActivity());
                 //Log.i("Date click", WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)).toString());
 
-                if(cursor != null){
+                if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
                     Intent intent = new Intent(getActivity(), DetailActivity.class)
                             .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)));
@@ -167,6 +168,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         return rootView;
     }
 
+    public void onLocationChanged(){
+        updateWeather();
+        getLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this);
+    }
+
     private void updateWeather() {
         FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -174,11 +180,4 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 getString(R.string.pref_location_default));
         weatherTask.execute(location);
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateWeather();
-    }
-
 }

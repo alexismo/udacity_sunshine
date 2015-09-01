@@ -15,16 +15,17 @@ public class MainActivity extends ActionBarActivity {
 
     private static final String Log_TAG = MainActivity.class.getSimpleName();
 
+    private String mLocation;
+    private static final String FORECASTFRAGMENT_TAG = "FFTAG";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
-
-        Log.d(Log_TAG, "creating");
-
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
                     .commit();
         }
     }
@@ -32,25 +33,35 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(Log_TAG, "starting");
+        //Log.d(Log_TAG, "starting");
         // The activity is about to become visible.
     }
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(Log_TAG, "resuming");
+
+        ForecastFragment ff = (ForecastFragment) getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+
+        String location  = Utility.getPreferredLocation(this);
+        if (location != null && !mLocation.equals(location)) {
+            if (null != ff) {
+                ff.onLocationChanged();
+            }
+
+            mLocation = location;
+        }
         // The activity has become visible (it is now "resumed").
     }
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(Log_TAG, "paused");
+        //Log.d(Log_TAG, "paused");
         // Another activity is taking focus (this activity is about to be "paused").
     }
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d(Log_TAG, "stopped");
+        //Log.d(Log_TAG, "stopped");
         // The activity is no longer visible (it is now "stopped")
     }
 
