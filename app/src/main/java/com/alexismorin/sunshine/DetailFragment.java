@@ -59,7 +59,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     static final int COL_WEATHER_WIND_SPEED = 6;
     static final int COL_WEATHER_WIND_DIRECTION = 7;
     static final int COL_WEATHER_PRESSURE = 8;
-    static final int COL_WEATHER_ID = 9;
+    static final int COL_WEATHER_CONDITION_ID = 9;
 
     private ImageView mIconView;
     private TextView mDayNameView;
@@ -177,7 +177,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mLowTempView.setText(Utility.formatTemperature(getActivity(), low, isMetric));
 
         //set the icon
-        mIconView.setImageResource(R.drawable.ic_launcher);
+        mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(data.getInt(COL_WEATHER_CONDITION_ID)));
 
         //set the short description
         String description = data.getString(COL_WEATHER_DESC);

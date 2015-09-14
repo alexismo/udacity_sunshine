@@ -4,6 +4,7 @@ package com.alexismorin.sunshine;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,8 @@ public class ForecastAdapter extends CursorAdapter {
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
+
+    private final static String LOG_TAG = ForecastAdapter.class.getSimpleName();
 
     private final int VIEW_TYPE_TODAY = 0;
     private final int VIEW_TYPE_FUTURE_DAY = 1;
@@ -57,7 +60,13 @@ public class ForecastAdapter extends CursorAdapter {
         ForecastViewHolder viewHolder = (ForecastViewHolder) view.getTag();
 
         //Read weather icon ID from the cursor
-        viewHolder.iconView.setImageResource(R.drawable.ic_launcher);
+        int viewType = getItemViewType(cursor.getPosition());
+        int weatherConditionArt = -1;
+        int conditionId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
+        weatherConditionArt = (viewType == 0)? Utility.getArtResourceForWeatherCondition(conditionId):
+                Utility.getIconResourceForWeatherCondition(conditionId);
+
+        viewHolder.iconView.setImageResource(weatherConditionArt);
 
         //Read the date from the cursor
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
