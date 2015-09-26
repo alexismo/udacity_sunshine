@@ -67,6 +67,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private static final String Log_TAG = ForecastFragment.class.getSimpleName();
 
+    public interface Callback{
+        /**
+         * DetailFragmentCallback for when an item has been selected
+         */
+        void onItemSelected(Uri dateUri);
+    }
+
     public ForecastFragment() {
     }
 
@@ -179,12 +186,5 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         String location = prefs.getString(getString(R.string.pref_location_key),
                 getString(R.string.pref_location_default));
         weatherTask.execute(location);
-    }
-
-    public interface Callback{
-        /**
-         * DetailFragmentCallback for when an item has been selected
-         */
-        public void onItemSelected(Uri dateUri);
     }
 }
