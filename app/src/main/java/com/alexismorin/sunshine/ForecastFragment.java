@@ -65,6 +65,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ForecastAdapter mForecastAdapter;
     private static final int FORECAST_LOADER_ID = 0;
 
+    private static final String Log_TAG = ForecastFragment.class.getSimpleName();
+
     public ForecastFragment() {
     }
 
@@ -153,14 +155,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 // if it cannot seek to that position
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
 
-                //String locationSetting = Utility.getPreferredLocation(getActivity());
-                //Log.i("Date click", WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)).toString());
-
                 if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
-                    Intent intent = new Intent(getActivity(), DetailActivity.class)
-                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)));
-                    startActivity(intent);
+                    ((Callback) getActivity())
+                            .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)
+                            ));
                 }
             }
         });
@@ -179,5 +179,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         String location = prefs.getString(getString(R.string.pref_location_key),
                 getString(R.string.pref_location_default));
         weatherTask.execute(location);
+    }
+
+    public interface Callback{
+        /**
+         * DetailFragmentCallback for when an item has been selected
+         */
+        public void onItemSelected(Uri dateUri);
     }
 }

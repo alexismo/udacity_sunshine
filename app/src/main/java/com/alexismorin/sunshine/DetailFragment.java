@@ -28,6 +28,7 @@ import com.alexismorin.sunshine.data.WeatherContract;
 public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
+    static final String DETAIL_URI = "URI";
 
     private static final String[] FORECAST_COLUMNS = {
             //In this case the id needs to be fully qualified with a table name, since
@@ -94,9 +95,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         // replace the uri, since the location has changed
         Uri uri = mUri;
         if(null != uri){
-            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            long date = Long.parseLong(WeatherContract.WeatherEntry.getDateFromUri(uri));
             Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation,date);
             mUri = updatedUri;
+
             getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
     }
@@ -104,6 +106,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Bundle arguments = getArguments();
+        if(arguments != null){
+            mUri = arguments.getParcelable(DETAIL_URI);
+        }
 
         View rootView =inflater.inflate(R.layout.fragment_detail, container, false);
 
@@ -148,19 +155,19 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        //first, get the data
-        Log.v(LOG_TAG, "In onCreateLoader");
-        Intent intent = getActivity().getIntent();
-        if (intent == null || intent.getData() == null) {
-            return null;
-        }
+        if(null != mUri){
+            //now create and return a CursorLoader that will take care of
+            // creating a Cursor for the data being displayed
 
-        return new CursorLoader(getActivity(),
-                intent.getData(),
-                FORECAST_COLUMNS,
-                null,
-                null,
-                null);//no sort order
+            return new CursorLoader(getActivity(),
+                    mUri,
+                    FORECAST_COLUMNS,
+                    null,
+                    null,
+                    null
+            );//no sort order
+        }
+        return null;
     }
 
     @Override
