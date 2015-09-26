@@ -61,12 +61,12 @@ public class ForecastAdapter extends CursorAdapter {
 
         //Read weather icon ID from the cursor
         int viewType = getItemViewType(cursor.getPosition());
-        int weatherConditionArt = -1;
+        int weatherConditionArtResourceId = -1;
         int conditionId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
-        weatherConditionArt = (viewType == 0)? Utility.getArtResourceForWeatherCondition(conditionId):
+        weatherConditionArtResourceId = (viewType == 0)? Utility.getArtResourceForWeatherCondition(conditionId):
                 Utility.getIconResourceForWeatherCondition(conditionId);
 
-        viewHolder.iconView.setImageResource(weatherConditionArt);
+        viewHolder.iconView.setImageResource(weatherConditionArtResourceId);
 
         //Read the date from the cursor
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);

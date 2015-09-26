@@ -107,8 +107,8 @@ public class WeatherContract {
             return uri.getPathSegments().get(1);
         }
 
-        public static String getDateFromUri(Uri uri){
-            return uri.getPathSegments().get(2);
+        public static long getDateFromUri(Uri uri){
+            return Long.parseLong(uri.getPathSegments().get(2));
         }
 
         public static String getStartDateFromUri(Uri uri){

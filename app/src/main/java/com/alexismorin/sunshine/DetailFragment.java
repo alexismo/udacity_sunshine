@@ -2,6 +2,7 @@ package com.alexismorin.sunshine;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -72,12 +73,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mPressureView;
 
     private String mForecast;
+    private Uri mUri;
+    private ShareActionProvider mShareActionProvider;
 
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
     private static final int DETAIL_LOADER = 0;
-
-    private ShareActionProvider mShareActionProvider;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -87,6 +88,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public void onActivityCreated(Bundle savedInstanceState){
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
+    }
+
+    void onLocationChanged(String newLocation){
+        // replace the uri, since the location has changed
+        Uri uri = mUri;
+        if(null != uri){
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation,date);
+            mUri = updatedUri;
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
     }
 
     @Override
@@ -139,7 +151,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         //first, get the data
         Log.v(LOG_TAG, "In onCreateLoader");
         Intent intent = getActivity().getIntent();
-        if (intent == null){
+        if (intent == null || intent.getData() == null) {
             return null;
         }
 
