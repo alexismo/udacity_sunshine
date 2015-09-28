@@ -159,7 +159,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             //now create and return a CursorLoader that will take care of
             // creating a Cursor for the data being displayed
 
-            return new CursorLoader(getActivity(),
+            return new CursorLoader(
+                    getActivity(),
                     mUri,
                     FORECAST_COLUMNS,
                     null,
