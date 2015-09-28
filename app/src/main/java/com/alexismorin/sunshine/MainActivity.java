@@ -91,7 +91,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d(Log_TAG, "destroyed");
+        //Log.d(Log_TAG, "destroyed");
         // The activity is about to be destroyed.
     }
 

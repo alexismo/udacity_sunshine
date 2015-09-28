@@ -1,14 +1,11 @@
 package com.alexismorin.sunshine;
 
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -63,6 +60,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_COORD_LONG = 8;
 
     private ForecastAdapter mForecastAdapter;
+    private ListView mForecastListView;
+
+    private final static String SCROLL_LIST_POSITION = "LIST_POSITION";
+    private int mScrollPosition;
     private static final int FORECAST_LOADER_ID = 0;
 
     private static final String Log_TAG = ForecastFragment.class.getSimpleName();
@@ -115,6 +116,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         //Swap the new cursor in (the framework takes care of closing the
         //old cursor once we return.
         mForecastAdapter.swapCursor(cursor);
+
+        if(mScrollPosition != ListView.INVALID_POSITION){
+            // If we don't need to restart the loader, and there's a desired position to restore
+            // to, do so now.
+            mForecastListView.smoothScrollToPosition(mScrollPosition);
+        }
     }
 
     @Override
@@ -144,7 +151,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
 
         // The CursorAdapter will take data from our cursor and populate the ListView
         mForecastAdapter = new ForecastAdapter(getActivity(), null,0);
@@ -152,27 +159,49 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // Get a reference to the ListView, and attach this adapter to it.
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(mForecastAdapter);
+        mForecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        mForecastListView.setAdapter(mForecastAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mForecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView adapterView, View view, int position, long l) {
-                //CursorAdapter returns a cursor at the correct position for getItem(), or null
-                // if it cannot seek to that position
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-
-                if (cursor != null) {
+                if (cursor != null && cursor.moveToPosition(position)) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
                     ((Callback) getActivity())
                             .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                                     locationSetting, cursor.getLong(COL_WEATHER_DATE)
                             ));
                 }
+                mScrollPosition = position;
             }
         });
 
+        // If there's an instance state, mine it for useful information
+        // The end-goal here is that the user never knows that turning their device sidways
+        // does crazy lifecycle related things. It should feel like some stuff streched out,
+        // or magically appeared to take advantage of room, but data or place in the app was never
+        // actually *lost*
+        if(savedInstanceState != null && savedInstanceState.containsKey(SCROLL_LIST_POSITION)){
+            // The listview probably hasn't even been populated yet. Actually perform the
+            // swapout in onLoadFinished.
+            mScrollPosition = savedInstanceState.getInt(SCROLL_LIST_POSITION);
+        }
+
+
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        // When tablets rotate, the currently selected list item needs to be saved.
+        // When no item is selected, mScrollPosition will be set to ListView.INVALID_POSITION
+        // so check for that before storing
+        if(mScrollPosition != ListView.INVALID_POSITION){
+            outState.putInt(SCROLL_LIST_POSITION, mScrollPosition);
+        }
+
+        super.onSaveInstanceState(outState);
     }
 
     public void onLocationChanged(){
