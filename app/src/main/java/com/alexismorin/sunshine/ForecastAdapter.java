@@ -25,9 +25,15 @@ public class ForecastAdapter extends CursorAdapter {
     private final int VIEW_TYPE_TODAY = 0;
     private final int VIEW_TYPE_FUTURE_DAY = 1;
 
+    private boolean mUseTodayLayout;
+
+    public void setUseTodayLayout(boolean useTodayLayout){
+        mUseTodayLayout = useTodayLayout;
+    }
+
     @Override
     public int getItemViewType(int position){
-        return (position == 0)?VIEW_TYPE_TODAY:VIEW_TYPE_FUTURE_DAY;
+        return (position == 0 && mUseTodayLayout) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
     }
 
     @Override
@@ -44,7 +50,16 @@ public class ForecastAdapter extends CursorAdapter {
         int viewType = getItemViewType(cursor.getPosition());
         int layoutId = -1;
 
-        layoutId = (viewType == 0)? R.layout.list_item_forecast_today:R.layout.list_item_forecast;
+        switch (viewType){
+            case VIEW_TYPE_TODAY:{
+                layoutId = R.layout.list_item_forecast_today;
+                break;
+            }
+            case VIEW_TYPE_FUTURE_DAY:{
+                layoutId = R.layout.list_item_forecast;
+                break;
+            }
+        }
 
         View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
         ForecastViewHolder viewHolder = new ForecastViewHolder(view);

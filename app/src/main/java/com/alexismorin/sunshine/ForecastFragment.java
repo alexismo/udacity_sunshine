@@ -63,7 +63,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ListView mForecastListView;
 
     private final static String SCROLL_LIST_POSITION = "LIST_POSITION";
-    private int mScrollPosition;
+    private int mScrollPosition = ListView.INVALID_POSITION;
+    private boolean mUseTodayLayout;
+
     private static final int FORECAST_LOADER_ID = 0;
 
     private static final String Log_TAG = ForecastFragment.class.getSimpleName();
@@ -188,6 +190,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             mScrollPosition = savedInstanceState.getInt(SCROLL_LIST_POSITION);
         }
 
+        mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
 
         return rootView;
     }
@@ -215,5 +218,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         String location = prefs.getString(getString(R.string.pref_location_key),
                 getString(R.string.pref_location_default));
         weatherTask.execute(location);
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout){
+        mUseTodayLayout = useTodayLayout;
+        if(mForecastAdapter != null){
+            mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
+        }
     }
 }
