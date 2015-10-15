@@ -28,6 +28,7 @@ import android.text.format.Time;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
+import com.alexismorin.sunshine.data.APIKey;
 import com.alexismorin.sunshine.data.WeatherContract;
 import com.alexismorin.sunshine.data.WeatherContract.WeatherEntry;
 import com.alexismorin.sunshine.data.WeatherContract.LocationEntry;
@@ -288,12 +289,14 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
             final String FORMAT_PARAM = "mode";
             final String UNITS_PARAM = "units";
             final String DAYS_PARAM = "cnt";
+            final String API_KEY = "APPID";
 
             Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                     .appendQueryParameter(QUERY_PARAM, params[0])
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .appendQueryParameter(UNITS_PARAM, units)
                     .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                    .appendQueryParameter(API_KEY, APIKey.owmAPIKey)
                     .build();
 
             URL url = new URL(builtUri.toString());
