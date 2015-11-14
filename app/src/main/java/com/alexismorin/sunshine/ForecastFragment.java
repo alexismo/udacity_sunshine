@@ -157,6 +157,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         // The CursorAdapter will take data from our cursor and populate the ListView
         mForecastAdapter = new ForecastAdapter(getActivity(), null,0);
+        mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -189,8 +190,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             // swapout in onLoadFinished.
             mScrollPosition = savedInstanceState.getInt(SCROLL_LIST_POSITION);
         }
-
-        mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
 
         return rootView;
     }
