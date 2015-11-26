@@ -30,7 +30,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
 
         if(findViewById(R.id.weather_detail_container) != null){
             //The detail container view will be present only in the large-screen layouts
-            // (res/layout-sw600dp). If this view is present, then the activity should be
+            // (res/layout-sw600dp-land). If this view is present, then the activity should be
             // in two-pane mode.
             mTwoPane = true;
 
