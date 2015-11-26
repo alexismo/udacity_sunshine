@@ -11,7 +11,7 @@
         <item name="actionBarStyle">@style/ActionBar.Solid.Sunshine.NoTitle</item>
     </style>
 
-    <!-- Settings activity theme -->
+    <!-- Settings activity Theme -->
     <style name="SettingsTheme" parent="AppTheme"></style>
 
     <!-- Main activity ActionBar styles -->
