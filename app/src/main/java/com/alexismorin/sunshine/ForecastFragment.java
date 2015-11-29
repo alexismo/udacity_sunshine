@@ -63,8 +63,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ListView mForecastListView;
 
     private final static String SCROLL_LIST_POSITION = "LIST_POSITION";
+    private final static String CLICKED_LIST_ITEM_POSITION = "CLICKED_LIST_ITEM";
+
     private int mScrollPosition = ListView.INVALID_POSITION;
-    private boolean mUseTodayLayout;
+    private int mClickedPosition = ListView.INVALID_POSITION;
+    private boolean mUseTodayLayout; //this can tell us if we're using dual pane mode
 
     private static final int FORECAST_LOADER_ID = 0;
 
@@ -117,6 +120,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor){
         //Swap the new cursor in (the framework takes care of closing the
         //old cursor once we return.
+        cursor.moveToFirst();
         mForecastAdapter.swapCursor(cursor);
 
         if(mScrollPosition != ListView.INVALID_POSITION){
@@ -124,6 +128,17 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             // to, do so now.
             mForecastListView.smoothScrollToPosition(mScrollPosition);
         }
+
+        if(!mUseTodayLayout && mClickedPosition == ListView.INVALID_POSITION){
+            mForecastListView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mForecastListView.performItemClick(mForecastListView, 0, mForecastListView.getItemIdAtPosition(0));
+                }
+            });
+        }
+
+        //activateFirstItemOnCreate();
     }
 
     @Override
@@ -168,6 +183,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mForecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView adapterView, View view, int position, long l) {
+
+                mClickedPosition = position;
+
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (cursor != null && cursor.moveToPosition(position)) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
@@ -185,10 +203,17 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         // does crazy lifecycle related things. It should feel like some stuff streched out,
         // or magically appeared to take advantage of room, but data or place in the app was never
         // actually *lost*
-        if(savedInstanceState != null && savedInstanceState.containsKey(SCROLL_LIST_POSITION)){
-            // The listview probably hasn't even been populated yet. Actually perform the
-            // swapout in onLoadFinished.
-            mScrollPosition = savedInstanceState.getInt(SCROLL_LIST_POSITION);
+        if(savedInstanceState != null ){
+
+            if(savedInstanceState.containsKey(SCROLL_LIST_POSITION)){
+                // The listview probably hasn't even been populated yet. Actually perform the
+                // swapout in onLoadFinished.
+                mScrollPosition = savedInstanceState.getInt(SCROLL_LIST_POSITION);
+            }
+
+            if(savedInstanceState.containsKey(CLICKED_LIST_ITEM_POSITION)){
+                mClickedPosition = savedInstanceState.getInt(CLICKED_LIST_ITEM_POSITION);
+            }
         }
 
         return rootView;
@@ -201,6 +226,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         // so check for that before storing
         if(mScrollPosition != ListView.INVALID_POSITION){
             outState.putInt(SCROLL_LIST_POSITION, mScrollPosition);
+        }
+
+        if(mClickedPosition != ListView.INVALID_POSITION){
+            outState.putInt(CLICKED_LIST_ITEM_POSITION, mClickedPosition);
         }
 
         super.onSaveInstanceState(outState);
