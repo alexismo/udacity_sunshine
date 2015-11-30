@@ -196,12 +196,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         double low = data.getDouble(COL_WEATHER_MIN_TEMP);
         mLowTempView.setText(Utility.formatTemperature(getActivity(), low, isMetric));
 
-        //set the icon
-        mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(data.getInt(COL_WEATHER_CONDITION_ID)));
-
         //set the short description
         String description = data.getString(COL_WEATHER_DESC);
         mDescriptionView.setText(description);
+
+        //set the icon
+        mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(data.getInt(COL_WEATHER_CONDITION_ID)));
+        mIconView.setContentDescription(description);
 
         //set the humidity
         mHumidityView.setText(String.format(getActivity().getString(R.string.format_humidity), data.getFloat(COL_WEATHER_HUMIDITY)));

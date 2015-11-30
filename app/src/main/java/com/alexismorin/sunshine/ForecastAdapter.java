@@ -4,7 +4,6 @@ package com.alexismorin.sunshine;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,14 +81,18 @@ public class ForecastAdapter extends CursorAdapter {
                 Utility.getIconResourceForWeatherCondition(conditionId);
 
         viewHolder.iconView.setImageResource(weatherConditionArtResourceId);
+        String description = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
+
+        viewHolder.iconView.setContentDescription(description);
 
         //Read the date from the cursor
         long dateInMillis = cursor.getLong(ForecastFragment.COL_WEATHER_DATE);
         viewHolder.dateView.setText(Utility.getFriendlyDayString(context, dateInMillis));
+        viewHolder.dateView.setContentDescription(context.getString(R.string.access_word_for) +" "+ Utility.getFriendlyDayString(context, dateInMillis));
 
         //Read the weather forecast from the cursor
-        String description = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
         viewHolder.descriptionView.setText(description);
+        viewHolder.descriptionView.setContentDescription(description);
 
         //Read user preference for metric or imperial temperature units
         boolean isMetric = Utility.isMetric(context);
@@ -97,10 +100,12 @@ public class ForecastAdapter extends CursorAdapter {
         //Read the high temperature from the cursor
         double high = cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP);
         viewHolder.highTempView.setText(Utility.formatTemperature(context, high,isMetric));
+        viewHolder.highTempView.setContentDescription(context.getString(R.string.access_word_high_of) + Utility.formatTemperature(context, high, isMetric));
 
         //Read low temperature from cursor
         double low = cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP);
         viewHolder.lowTempView.setText(Utility.formatTemperature(context, low,isMetric));
+        viewHolder.lowTempView.setContentDescription(context.getString(R.string.access_word_low_of)+ Utility.formatTemperature(context, low, isMetric));
     }
 
     /**
