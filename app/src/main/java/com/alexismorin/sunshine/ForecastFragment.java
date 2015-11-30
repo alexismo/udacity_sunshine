@@ -118,10 +118,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor){
-        //Swap the new cursor in (the framework takes care of closing the
-        //old cursor once we return.
-        cursor.moveToFirst();
-        mForecastAdapter.swapCursor(cursor);
+        if(cursor.moveToFirst()){//cursor.moveToFirst();
+            //Swap the new cursor in (the framework takes care of closing the
+            //old cursor once we return.
+            mForecastAdapter.swapCursor(cursor);
+        }else{
+            updateWeather();
+        }
 
         if(mScrollPosition != ListView.INVALID_POSITION){
             // If we don't need to restart the loader, and there's a desired position to restore
@@ -137,8 +140,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 }
             });
         }
-
-        //activateFirstItemOnCreate();
     }
 
     @Override
@@ -212,6 +213,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             }
 
             if(savedInstanceState.containsKey(CLICKED_LIST_ITEM_POSITION)){
+                // This is used on landscape 7-inch tablets to perform a click on the
+                // first weather entry when the application first loads.
                 mClickedPosition = savedInstanceState.getInt(CLICKED_LIST_ITEM_POSITION);
             }
         }
