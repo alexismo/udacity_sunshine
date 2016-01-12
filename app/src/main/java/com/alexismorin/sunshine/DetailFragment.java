@@ -72,6 +72,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mHumidityView;
     private TextView mWindView;
     private TextView mPressureView;
+    private AQIView mAQIView;
 
     private String mForecast;
     private Uri mUri;
@@ -123,6 +124,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mHumidityView = (TextView) rootView.findViewById(R.id.detail_humidity_textview);
         mWindView = (TextView) rootView.findViewById(R.id.detail_wind_textview);
         mPressureView = (TextView) rootView.findViewById(R.id.detail_pressure_textview);
+        mAQIView = (AQIView) rootView.findViewById(R.id.detail_aqi_aqiview);
 
         return rootView;
     }
@@ -216,6 +218,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mPressureView.setText(String.format(getActivity().getString(R.string.format_pressure), data.getFloat(COL_WEATHER_PRESSURE)));
 
         mForecast = String.format("%s - %s - %s/%s", dateText, description, high, low);
+
+        //set the AQI @TODO actually implement this
+        mAQIView.setAQI(80);
 
         //If OnCreateOptionsMenu has already happened, we need to update the share intent now
         if(mShareActionProvider != null){
