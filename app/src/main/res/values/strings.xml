@@ -70,5 +70,6 @@
     <string name="access_word_for">for</string>
     <string name="access_word_the_forecast_is">the forecast is</string>
     <string name="access_word_with_a">with a</string>
+    <string name="theAQI">The air quality index is of</string>
 
 </resources>

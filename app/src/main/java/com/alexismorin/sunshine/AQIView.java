@@ -4,15 +4,18 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.Range;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
 
 /**
  * Created by alexis on 02/12/15.
  */
 public class AQIView extends View {
 
-    private int airQualityIndex = 0;
+    private static final String LOG_TAG = AQIView.class.getCanonicalName();
 
     private int[] colorThreshholds = new int[] {0,50, 100, 150, 200, 300, 500};
     private int[] aqiColors = new int[] {0xff009966, 0xffffde33, 0xffff9933, 0xffcc0033, 0xff660099, 0xff7e0023};
@@ -26,7 +29,12 @@ public class AQIView extends View {
     private float aqiRangeWidth = 0.0f;
     private float baubleX = 0.0f;
 
-    private void init(){
+    private Context mContext;
+
+    private void init(Context context){
+
+        this.setContentDescription(context.getString(R.string.theAQI));
+
         mAQIBackgroundPaint = new Paint();
         mAQITextPaint = new Paint();
         mAQIBaublePaint = new Paint();
@@ -40,26 +48,38 @@ public class AQIView extends View {
 
         mAQIBaublePaint.setAntiAlias(true);
         mAQIBaublePaint.setColor(0xFFFFFFFF);
+
+        mContext = context;
     }
 
     public AQIView(Context context) {
         super(context);
-        init();
+        init(context);
     }
 
     public AQIView(Context context, AttributeSet attrs){
         super(context, attrs);
-        init();
+        init(context);
     }
 
     public AQIView(Context context, AttributeSet attrs,
                    int defaultStyle){
         super(context, attrs, defaultStyle);
-        init();
+        init(context);
     }
 
     public void setAQI(int newAQI){
         this.theAQI = newAQI;
+
+        AccessibilityManager accessibilityManager =
+                (AccessibilityManager) mContext.getSystemService(
+                        Context.ACCESSIBILITY_SERVICE);
+
+        if(accessibilityManager.isEnabled()){
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED);//not sure I need this.
+            setContentDescription(mContext.getString(R.string.theAQI) + " " + theAQI);
+        }
+
         invalidate();
     }
 
@@ -134,8 +154,14 @@ public class AQIView extends View {
 
         canvas.drawText(theAQI + "",
                 baubleX,
-                height / 2 + (2* (mAQITextPaint.getTextSize() / 5)),
+                height / 2 + (2 * (mAQITextPaint.getTextSize() / 5)),
                 mAQITextPaint);
+    }
+
+    @Override
+    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent ev){ //not sure I need this at all for my view
+        ev.getText().add(mContext.getString(R.string.theAQI) +" "+ theAQI);
+        return true;
     }
 
     private int aqiSection(int aqi){
