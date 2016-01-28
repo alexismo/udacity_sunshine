@@ -239,10 +239,10 @@ public class SunshineService extends IntentService {
         return locationId;
     }
 
-    private Void contactTheInternets(String... params){
+    private void contactTheInternets(String... params){
         // If there's no zip code, there's nothing to look up.  Verify size of params.
         if (params.length == 0) {
-            return null;
+            return;
         }
         String locationQuery = params[0];
 
@@ -293,7 +293,7 @@ public class SunshineService extends IntentService {
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
                 // Nothing to do.
-                return null;
+                return;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -307,7 +307,7 @@ public class SunshineService extends IntentService {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
-                return null;
+                return;
             }
             forecastJsonStr = buffer.toString();
             getWeatherDataFromJson(forecastJsonStr, locationQuery);
@@ -330,6 +330,5 @@ public class SunshineService extends IntentService {
                 }
             }
         }
-        return null;
     }
 }
