@@ -249,7 +249,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 getString(R.string.pref_location_default));
 
         Intent sunshineIntent = new Intent(getActivity(), SunshineService.class);
-        sunshineIntent.putExtra("location", location);
+        sunshineIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, location);
         getActivity().startService(sunshineIntent);
     }
 

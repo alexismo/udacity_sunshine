@@ -29,6 +29,8 @@ import java.util.Vector;
  */
 public class SunshineService extends IntentService {
 
+    public static final String LOCATION_QUERY_EXTRA = "lqe";
+
     private final String LOG_TAG = SunshineService.class.getSimpleName();
 
     public SunshineService() {
@@ -37,7 +39,7 @@ public class SunshineService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String location = intent.getStringExtra("location");
+        String location = intent.getStringExtra(LOCATION_QUERY_EXTRA);
         contactTheInternets(location);
     }
 
