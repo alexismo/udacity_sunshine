@@ -239,13 +239,7 @@ public class SunshineService extends IntentService {
         return locationId;
     }
 
-    private void contactTheInternets(String... params){
-        // If there's no zip code, there's nothing to look up.  Verify size of params.
-        if (params.length == 0) {
-            return;
-        }
-        String locationQuery = params[0];
-
+    private void contactTheInternets(String locationQuery){
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -274,7 +268,7 @@ public class SunshineService extends IntentService {
             final String API_KEY = "APPID";
 
             Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                    .appendQueryParameter(QUERY_PARAM, params[0])
+                    .appendQueryParameter(QUERY_PARAM, locationQuery)
                     .appendQueryParameter(FORMAT_PARAM, format)
                     .appendQueryParameter(UNITS_PARAM, units)
                     .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
