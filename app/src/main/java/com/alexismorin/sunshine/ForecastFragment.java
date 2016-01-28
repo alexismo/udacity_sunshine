@@ -244,12 +244,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void updateWeather() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String location = prefs.getString(getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
-
         Intent sunshineIntent = new Intent(getActivity(), SunshineService.class);
-        sunshineIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, location);
+        sunshineIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,
+                Utility.getPreferredLocation(getActivity()));
         getActivity().startService(sunshineIntent);
     }
 
