@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -63,7 +62,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_COORD_LONG = 8;
 
     private AlarmManager alarmManager;
-    private PendingIntent alarmIntent;
+    private PendingIntent pi;
 
     private ForecastAdapter mForecastAdapter;
     private ListView mForecastListView;
@@ -249,17 +248,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void updateWeather() {
-
-        alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-        Intent sunshineIntent = new Intent(getActivity(), SunshineService.class);
+        Intent sunshineIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
         sunshineIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,
                 Utility.getPreferredLocation(getActivity()));
 
-        alarmIntent = PendingIntent.getService(getActivity(), 0, sunshineIntent, 0);
+        pi = PendingIntent.getBroadcast(getActivity(), 0, sunshineIntent, PendingIntent.FLAG_ONE_SHOT);
+        alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
 
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() +
-                        5 * 1000, alarmIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5 * 1000, pi);
     }
 
     public void setUseTodayLayout(boolean useTodayLayout){

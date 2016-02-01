@@ -332,7 +332,13 @@ public class SunshineService extends IntentService {
 
         @Override
         public void onReceive(Context context, Intent intent){
-            context.startService(intent);
+            // my guess is it's good practice to not just start any intent you're sent dilly dally.
+            // this is why I'm re-creating a SunshineService intent here, rather than re-using the
+            // one that's sent to me
+            Intent sendIntent = new Intent(context, SunshineService.class);
+            sendIntent.putExtra(LOCATION_QUERY_EXTRA, intent.getStringExtra(LOCATION_QUERY_EXTRA));
+
+            context.startService(sendIntent);
         }
     }
 
