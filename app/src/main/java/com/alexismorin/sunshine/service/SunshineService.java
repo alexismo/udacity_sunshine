@@ -1,8 +1,10 @@
 package com.alexismorin.sunshine.service;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -325,4 +327,13 @@ public class SunshineService extends IntentService {
             }
         }
     }
+
+    static public class AlarmReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent){
+            context.startService(intent);
+        }
+    }
+
 }
