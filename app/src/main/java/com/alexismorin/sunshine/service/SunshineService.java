@@ -41,8 +41,8 @@ public class SunshineService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String location = intent.getStringExtra(LOCATION_QUERY_EXTRA);
-        contactTheInternets(location);
+        //String location = intent.getStringExtra(LOCATION_QUERY_EXTRA);
+        //contactTheInternets(location);
     }
 
     /**
