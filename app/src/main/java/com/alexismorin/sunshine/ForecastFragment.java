@@ -24,6 +24,7 @@ import android.widget.ListView;
 import com.alexismorin.sunshine.data.WeatherContract;
 import com.alexismorin.sunshine.data.WeatherContract.WeatherEntry;
 import com.alexismorin.sunshine.service.SunshineService;
+import com.alexismorin.sunshine.sync.SunshineSyncAdapter;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
@@ -248,7 +249,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void updateWeather() {
-        Intent sunshineIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+        /*Intent sunshineIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
         sunshineIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA,
                 Utility.getPreferredLocation(getActivity()));
 
@@ -256,6 +257,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
 
         alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5 * 1000, pi);
+        */
+        SunshineSyncAdapter.syncImmediately(getActivity());
     }
 
     public void setUseTodayLayout(boolean useTodayLayout){
