@@ -47,7 +47,6 @@
             android:syncable="true"
             android:exported="false"
             />
-        <service android:name="com.alexismorin.sunshine.service.SunshineService" />
         <!-- SyncAdapter's dummy authentication service -->
         <service
             android:name=".sync.SunshineAuthenticatorService">
@@ -69,7 +68,6 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
-        <receiver android:name=".service.SunshineService$AlarmReceiver" />
     </application>
 
 </manifest>

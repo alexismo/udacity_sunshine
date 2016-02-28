@@ -3,8 +3,6 @@ package com.alexismorin.sunshine;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,7 +21,6 @@ import android.widget.ListView;
 
 import com.alexismorin.sunshine.data.WeatherContract;
 import com.alexismorin.sunshine.data.WeatherContract.WeatherEntry;
-import com.alexismorin.sunshine.service.SunshineService;
 import com.alexismorin.sunshine.sync.SunshineSyncAdapter;
 
 /**
