@@ -133,6 +133,11 @@ public class Utility {
         return context.getString(R.string.format_temperature, temp);
     }
 
+    public static String formatTemperature(Context context, double temperature){
+        boolean isMetric = Utility.isMetric(context);
+        return formatTemperature(context, temperature, isMetric);
+    }
+
     public static String getFormattedWind(Context context, float windSpeed, float degrees){
         int windFormat;
         if (Utility.isMetric(context)){
