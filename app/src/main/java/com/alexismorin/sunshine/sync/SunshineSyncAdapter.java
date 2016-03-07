@@ -53,7 +53,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "onPerformSync Called.");
 
-        contactTheInternets(extras.getString(SunshineSyncAdapter.LOCATION_QUERY_EXTRA));
+        contactTheInternets(Utility.getPreferredLocation(getContext()));
     }
 
     /**
@@ -90,6 +90,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         /*
          * Finally, let's do a sync to get things started
          */
+
+        Log.i("SunshineSyncAdapter", "Sync location:" + Utility.getPreferredLocation(context));
         syncImmediately(context);
     }
 

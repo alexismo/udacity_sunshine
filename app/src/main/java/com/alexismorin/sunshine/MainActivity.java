@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.alexismorin.sunshine.data.WeatherContract;
 import com.alexismorin.sunshine.sync.SunshineSyncAdapter;
 
 
