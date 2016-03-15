@@ -2,7 +2,6 @@ package com.alexismorin.sunshine.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
@@ -17,17 +16,16 @@ import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.alexismorin.sunshine.DetailActivity;
 import com.alexismorin.sunshine.MainActivity;
 import com.alexismorin.sunshine.R;
 import com.alexismorin.sunshine.Utility;
@@ -61,7 +59,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
             WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
             WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
-            WeatherContract.WeatherEntry.COLUMN_SHORT_DESC
+            WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
+            WeatherContract.WeatherEntry.COLUMN_DATETEXT
     };
 
     // these indices must match the projection
@@ -69,8 +68,9 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int INDEX_MAX_TEMP = 1;
     private static final int INDEX_MIN_TEMP = 2;
     private static final int INDEX_SHORT_DESC = 3;
+    private static final int INDEX_DATETEXT = 4;
 
-    private static final long DAY_IN_MILLIS = 5; //1000 * 60 * 60 *24;
+    private static final long DAY_IN_MILLIS = 1000 * 60 * 60 *24;
     private static final int WEATHER_NOTIFICATION_ID = 3004;
 
 
@@ -479,7 +479,6 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         long lastSync = prefs.getLong(lastNotificationKey, 0);
 
         if(System.currentTimeMillis() - lastSync >= DAY_IN_MILLIS){
-            Log.i(LOG_TAG, "notifying");
             //Last sync was more than 1 day ago. Let's send a notification with the weather.
             String locationQuery = Utility.getPreferredLocation(context);
 
@@ -493,6 +492,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 double high = cursor.getDouble(INDEX_MAX_TEMP);
                 double low = cursor.getDouble(INDEX_MIN_TEMP);
                 String desc = cursor.getString(INDEX_SHORT_DESC);
+                String datetext = cursor.getString(INDEX_DATETEXT);
 
                 int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
                 String title = context.getString(R.string.app_name);
@@ -503,17 +503,23 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                         Utility.formatTemperature(context, high),
                         Utility.formatTemperature(context, low));
 
-                Log.i(LOG_TAG, "notify of:"+contentText);
 
                 //build your notification here
                 NotificationCompat.Builder builder =
                         new NotificationCompat.Builder(context)
                         .setContentTitle(title)
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), iconId))
+                        .setSmallIcon(Utility.getIconResourceForWeatherCondition(weatherId))
                         .setContentText(contentText);
 
                 //create an explicit intent for what the notification should open
-                Intent forecastIntent = new Intent(context, MainActivity.class);
+
+                Uri detailUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationQuery,datetext);
+
+                Intent detailIntent = new Intent(context, DetailActivity.class)
+                        .setData(detailUri);
+
+                Intent mainActivityIntent = new Intent(context, MainActivity.class);
 
                 // The stack builder Object will contain an artificial back stack for the
                 // started Activity.
@@ -521,9 +527,12 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 // your application to the Home screen.
                 TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
                 // Adds the back stack for the Intent (but not the Intent itself)
+
                 stackBuilder.addParentStack(MainActivity.class);
                 // Adds the Intent that starts the Activity on top of the stack
-                stackBuilder.addNextIntent(forecastIntent);
+                stackBuilder.addNextIntent(mainActivityIntent);
+                stackBuilder.addNextIntent(detailIntent);
+
                 PendingIntent forecastPendingIntent =
                         stackBuilder.getPendingIntent(0,
                                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -542,6 +551,9 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }else{
                 Log.i(LOG_TAG, "ive no data to work with...");
             }
+
+            cursor.close();
+
         }else{
             Log.i(LOG_TAG, "NOT notifying");
         }

@@ -137,7 +137,7 @@ public class AQIView extends View {
             int aqiSection = aqiSection(theAQI);
             baubleX = (marginSide + (aqiSection * aqiRangeWidth));
 
-            float extra = ((theAQI - (colorThreshholds[aqiSection])) / (colorThreshholds[aqiSection+1] - theAQI));
+            //float extra = ((theAQI - (colorThreshholds[aqiSection])) / (colorThreshholds[aqiSection+1] - theAQI));
             int aqiRangeMin = colorThreshholds[aqiSection];
 
             float baubleXtra = ((float)(theAQI - aqiRangeMin)) / ((float)(colorThreshholds[aqiSection+1] - aqiRangeMin));
