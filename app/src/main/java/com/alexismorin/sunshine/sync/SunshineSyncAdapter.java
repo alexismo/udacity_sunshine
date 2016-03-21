@@ -320,8 +320,11 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
                 inserted = getContext().getContentResolver().bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cvArray);
+
                 //if there's any new weather, notify of this, at most once per day
-                notifyWeather();
+                if(Utility.shouldNotifyOfForecast(getContext())) {
+                    notifyWeather();
+                }
             }
 
             Log.d(LOG_TAG, "SunshineService Complete. " + inserted + " Inserted");

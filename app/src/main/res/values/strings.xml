@@ -34,6 +34,10 @@
     <string name="pref_tempunit_metric">metric</string>
     <string name="pref_tempunit_imperial">imperial</string>
 
+    <!-- Key name for storing whether user wants to be notified daily about the weather -->
+    <string name="pref_receive_forecast_notification">forecast_notification</string>
+
+    <string name="pref_notification_label">Daily weather notification</string>
 
     <string-array name="pref_tempunit_entries">
         <item>Metric</item>

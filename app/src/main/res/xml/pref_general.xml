@@ -13,4 +13,11 @@
         android:entryValues="@array/pref_tempunit_entryvalues"
         android:defaultValue="@string/pref_tempunit_default"/>
 
+    <CheckBoxPreference
+        android:key="@string/pref_receive_forecast_notification"
+        android:title="@string/pref_notification_label"
+        android:defaultValue="true"
+        android:summary="Whether you receive a single forecast notification every day."
+        />
+
 </PreferenceScreen>
