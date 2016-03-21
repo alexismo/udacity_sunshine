@@ -1,14 +1,11 @@
 package com.alexismorin.sunshine;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Created by alexis on 17/11/14.
@@ -117,7 +114,7 @@ public class Utility {
 
     public static boolean shouldNotifyOfForecast(Context context){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getBoolean(context.getString(R.string.pref_receive_forecast_notification), true);
+        return prefs.getBoolean(context.getString(R.string.pref_enable_notification_key), true);
     }
 
     public static boolean isMetric(Context context){

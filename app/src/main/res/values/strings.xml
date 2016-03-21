@@ -35,9 +35,11 @@
     <string name="pref_tempunit_imperial">imperial</string>
 
     <!-- Key name for storing whether user wants to be notified daily about the weather -->
-    <string name="pref_receive_forecast_notification">forecast_notification</string>
-
-    <string name="pref_notification_label">Daily weather notification</string>
+    <string name="pref_enable_notification_key">forecast_notification</string>
+    <string name="pref_enable_notification_label">Daily weather notification</string>
+    <string name="pref_enable_notification_true">Enabled</string>
+    <string name="pref_enable_notification_false">Disabled</string>
+    <string name="pref_enable_notification_default" translatable="false">true</string>
 
     <string-array name="pref_tempunit_entries">
         <item>Metric</item>
