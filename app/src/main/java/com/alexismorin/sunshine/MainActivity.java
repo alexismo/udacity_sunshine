@@ -120,31 +120,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
-        if(id==R.id.action_view_preferred_location){
-            openPreferredLocationInMap();
-            return true;
-        }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void openPreferredLocationInMap(){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        String location = prefs.getString(
-                getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default)
-        );
-
-        Uri geoUri= Uri.parse("geo:0,0?").buildUpon()
-                .appendQueryParameter("q", location).build();
-
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW);
-        mapIntent.setData(geoUri);
-        if (mapIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(mapIntent);
-        }else{
-            Log.d("MainActivity", "couldn't call openPreferredLocationMap");
-        }
     }
 
     @Override

@@ -3,13 +3,18 @@ package com.alexismorin.sunshine;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,9 +23,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.alexismorin.sunshine.data.WeatherContract;
 import com.alexismorin.sunshine.data.WeatherContract.WeatherEntry;
+import com.alexismorin.sunshine.data.WeatherContract.LocationEntry;
 import com.alexismorin.sunshine.sync.SunshineSyncAdapter;
 
 /**
@@ -58,6 +65,20 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_WEATHER_CONDITION_ID = 6;
     static final int COL_COORD_LAT = 7;
     static final int COL_COORD_LONG = 8;
+
+    private static final String [] LOCATION_COLUMNS = {
+            LocationEntry.TABLE_NAME+"."+ LocationEntry._ID,
+            LocationEntry.COLUMN_CITY_NAME,
+            LocationEntry.COLUMN_COORD_LAT,
+            LocationEntry.COLUMN_COORD_LONG
+    };
+
+    //indices tied to the LOCATION_COLUMNS
+
+    static final int COL_LOCATION_ID = 0;
+    static final int COL_LOCATION_NAME = 1;
+    static final int COL_LOCATION_LAT = 2;
+    static final int COL_LOCATION_LONG = 3;
 
     private AlarmManager alarmManager;
     private PendingIntent pi;
@@ -167,7 +188,47 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             updateWeather();
             return true;
         }
+        if(id==R.id.action_view_preferred_location){
+            openPreferredLocationInMap();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void openPreferredLocationInMap(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        String location = prefs.getString(
+                getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default)
+        );
+
+        Cursor locationCursor = getActivity().getContentResolver().query(WeatherContract.LocationEntry.CONTENT_URI,
+                LOCATION_COLUMNS,
+                LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                new String[]{location},
+                LocationEntry.COLUMN_CITY_NAME + " ASC");
+
+        if(locationCursor.moveToFirst()){
+            //String cityName = locationCursor.getString(COL_LOCATION_NAME);
+            String cityLat = locationCursor.getString(COL_LOCATION_LAT);
+            String cityLon = locationCursor.getString(COL_LOCATION_LONG);
+
+            Uri geoUri= Uri.parse("geo:"+cityLat+","+cityLon+"?q="+cityLat+","+cityLon)
+                    .buildUpon().build();
+
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW);
+            mapIntent.setData(geoUri);
+            if (mapIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(mapIntent);
+            }
+        }else{
+
+            Toast toast = Toast.makeText(getActivity(),"Couldn't find that city on the map.", Toast.LENGTH_LONG);
+            toast.show();
+        }
+
+        locationCursor.close();
     }
 
     @Override
