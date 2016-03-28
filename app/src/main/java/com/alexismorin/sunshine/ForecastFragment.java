@@ -35,6 +35,8 @@ import com.alexismorin.sunshine.sync.SunshineSyncAdapter;
  */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
+    private static final String LOG_TAG = ForecastFragment.class.getCanonicalName();
+
     private static final String[] FORECAST_COLUMNS = {
             //In this case the id needs to be fully qualified with a table name, since
             //the content provider joins the location & weather tables in the background
@@ -65,20 +67,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_WEATHER_CONDITION_ID = 6;
     static final int COL_COORD_LAT = 7;
     static final int COL_COORD_LONG = 8;
-
-    private static final String [] LOCATION_COLUMNS = {
-            LocationEntry.TABLE_NAME+"."+ LocationEntry._ID,
-            LocationEntry.COLUMN_CITY_NAME,
-            LocationEntry.COLUMN_COORD_LAT,
-            LocationEntry.COLUMN_COORD_LONG
-    };
-
-    //indices tied to the LOCATION_COLUMNS
-
-    static final int COL_LOCATION_ID = 0;
-    static final int COL_LOCATION_NAME = 1;
-    static final int COL_LOCATION_LAT = 2;
-    static final int COL_LOCATION_LONG = 3;
 
     private AlarmManager alarmManager;
     private PendingIntent pi;
@@ -196,39 +184,29 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void openPreferredLocationInMap(){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        // Using the URI scheme for showing a location found on a map.  This super-handy
+        // intent can is detailed in the "Common Intents" page of Android's developer site:
+        // http://developer.android.com/guide/components/intents-common.html#Maps
+        if ( null != mForecastAdapter ) {
+            Cursor c = mForecastAdapter.getCursor();
+            if ( null != c ) {
+                c.moveToPosition(0);
+                String posLat = c.getString(COL_COORD_LAT);
+                String posLong = c.getString(COL_COORD_LONG);
+                Uri geoUri= Uri.parse("geo:"+posLat+","+posLong+"?q="+posLat+","+posLong)
+                        .buildUpon().build();
 
-        String location = prefs.getString(
-                getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default)
-        );
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(geoUri);
 
-        Cursor locationCursor = getActivity().getContentResolver().query(WeatherContract.LocationEntry.CONTENT_URI,
-                LOCATION_COLUMNS,
-                LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
-                new String[]{location},
-                LocationEntry.COLUMN_CITY_NAME + " ASC");
-
-        if(locationCursor.moveToFirst()){
-            //String cityName = locationCursor.getString(COL_LOCATION_NAME);
-            String cityLat = locationCursor.getString(COL_LOCATION_LAT);
-            String cityLon = locationCursor.getString(COL_LOCATION_LONG);
-
-            Uri geoUri= Uri.parse("geo:"+cityLat+","+cityLon+"?q="+cityLat+","+cityLon)
-                    .buildUpon().build();
-
-            Intent mapIntent = new Intent(Intent.ACTION_VIEW);
-            mapIntent.setData(geoUri);
-            if (mapIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-                startActivity(mapIntent);
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    Log.d(LOG_TAG, "Couldn't call " + geoUri.toString() + ", no receiving apps installed!");
+                }
             }
-        }else{
 
-            Toast toast = Toast.makeText(getActivity(),"Couldn't find that city on the map.", Toast.LENGTH_LONG);
-            toast.show();
         }
-
-        locationCursor.close();
     }
 
     @Override
